@@ -277,47 +277,104 @@ const DB = (() => {
 
 /* ---------- Categorias padrão + regras ---------- */
 const DEFAULT_CATS = [
-  {id:'mercado',  nome:'Mercado',        cor:'var(--c4)', kws:['mercado','supermerc','atacad','hortif','acougue','padaria','assai','carrefour','pao de acucar','extra','sams']},
-  {id:'aliment',  nome:'Alimentação',    cor:'var(--c1)', kws:['ifood','rappi','restaurante','lanchonete','burger','pizza','cafe','bar ','padoca','mc donalds','starbucks','subway']},
-  {id:'transporte',nome:'Transporte',    cor:'var(--c2)', kws:['uber','99 ','99app','99*','cabify','posto','combust','ipiranga','shell','gasolina','estacion','pedagio','metro','onibus']},
-  {id:'moradia',  nome:'Moradia',        cor:'var(--c0)', kws:['aluguel','condominio','energia','luz','agua','gas ','enel','sabesp','internet','vivo','claro','tim ','eletric','elektro','net ']},
-  {id:'saude',    nome:'Saúde',          cor:'var(--c7)', kws:['farmacia','drogaria','drogasil','pacheco','raia','hospital','clinica','laborat','plano de saude','unimed','academia','gym','smartfit']},
-  {id:'assinat',  nome:'Assinaturas',    cor:'var(--c5)', kws:['netflix','spotify','amazon prime','disney','hbo','max ','youtube','google one','icloud','apple.com','microsoft','openai','chatgpt']},
-  {id:'compras',  nome:'Compras',        cor:'var(--c8)', kws:['amazon','mercado livre','mercadolivre','shopee','aliexpress','magalu','americanas','renner','zara','riachuelo','shein','loja']},
-  {id:'lazer',    nome:'Lazer',          cor:'var(--c6)', kws:['cinema','ingresso','show','viagem','hotel','airbnb','booking','latam','gol ','azul ','decolar']},
-  {id:'rendas',   nome:'Entradas',       cor:'var(--income)', kws:['pagamento recebido','salario','pix recebido','transferencia recebida','rendimento','cashback','estorno','credito']},
-  {id:'transfer', nome:'Transferências/Invest.', cor:'var(--c9)', kws:['pix','ted ','doc ','cdb','cofrinhos','aplicacao','aplic aut','resgate','rend pago','transf ','transferencia','pgto fat cartao','fat cartao','pagamento de fatura','itau black','emissao de cdb','saque din','inclusao de pagamento']},
-  {id:'outros',   nome:'Outros',         cor:'var(--c5)', kws:[]},
+  {id:'alimentacao', nome:'Alimentação', cor:'var(--c1)', subs:[
+    {id:'mercado', nome:'Mercado', kws:['mercado','supermerc','atacad','hortif','acougue','assai','carrefour','pao de acucar','extra','sams']},
+    {id:'almoco_trab', nome:'Almoço do trabalho', kws:['piccolo','millo','rick doces']},
+    {id:'restaurantes', nome:'Restaurantes e Padarias', kws:['outback','donalds','habib','padaria','pizzaria','restaurante','picanha','cafe']},
+    {id:'delivery', nome:'Delivery', kws:['keeta','ifood','ifd','kta','delivery']},
+  ]},
+  {id:'transporte', nome:'Transporte', cor:'var(--c2)', subs:[
+    {id:'uber', nome:'Uber', kws:['uber','cabify','taxi','99 ','99app','99*']},
+    {id:'metro', nome:'Metrô', kws:['autoclass','onetop','autopass','metro']},
+    {id:'combustivel', nome:'Combustível', kws:['shell','ipiranga','posto','combustivel','gasolina']},
+    {id:'manutencao', nome:'Manutenção', kws:['borracharia','mecanico']},
+    {id:'estacionamento', nome:'Estacionamento', kws:['park','estapar','estacionamento']},
+    {id:'pedagio_multa', nome:'Pedágios e multas', kws:['multa','rodoanel','pedagio','ecovias']},
+  ]},
+  {id:'moradia', nome:'Moradia', cor:'var(--c0)', subs:[
+    {id:'basicas', nome:'Básicas', kws:['energia','enel','vivo','sabesp','congas','elektro','eletric','agua','luz','internet']},
+    {id:'faxina', nome:'Faxina', kws:['rosana']},
+    {id:'condominio', nome:'Condomínio', kws:['neon','helbor']},
+    {id:'assinaturas', nome:'Assinaturas', kws:['netflix','spotify','amazon prime','disney','hbo','max ','youtube','google one','icloud','apple.com','microsoft','openai','chatgpt','melimais','claude']},
+    {id:'seguros', nome:'Seguros', kws:['seguro','mapfre','porto seguro','bradesco seguro','residencial','petlove','seguro auto']},
+  ]},
+  {id:'saude', nome:'Saúde', cor:'var(--c7)', subs:[
+    {id:'farmacia', nome:'Farmácia', kws:['drogaria','drogasil','pacheco','raia','hospital','laborat','plano de saude','unimed','amil','farma']},
+    {id:'medicos', nome:'Médicos', kws:['clinica','odonto','alleviare','mariana ananias','fabiana caine']},
+  ]},
+  {id:'taxas', nome:'Taxas e Impostos', cor:'var(--c3)', subs:[
+    {id:'contador', nome:'Contador', kws:['acrescent']},
+    {id:'impostos', nome:'Impostos', kws:['receita federal','pis cofins','darf']},
+    {id:'cartao_conta', nome:'Cartão e Conta', kws:['tar pacote','anuidade']},
+  ]},
+  {id:'aquisicoes', nome:'Aquisições', cor:'var(--c6)', subs:[
+    {id:'terreno', nome:'Terreno', kws:['jardim paulista']},
+  ]},
+  {id:'lazer', nome:'Lazer', cor:'var(--c5)', subs:[
+    {id:'viagens', nome:'Viagens', kws:['hotel','latam','booking','decolar','airbnb','gol ','azul ']},
+    {id:'eventos', nome:'Eventos', kws:['cinema','ingresso','show']},
+  ]},
+  {id:'pet', nome:'Pet', cor:'var(--c8)', subs:[
+    {id:'racao', nome:'Ração', kws:['cobasi','petz','racao']},
+    {id:'veterinario', nome:'Veterinário', kws:['veterinari','pet shop','clinica vet']},
+  ]},
+  {id:'compras', nome:'Compras', cor:'var(--c4)', subs:[
+    {id:'compras_yago', nome:'Compras Yago', kws:['kaizen','loterica']},
+    {id:'compras_nat', nome:'Compras Nat', kws:['pilates']},
+    {id:'compras_be', nome:'Compras Bê', kws:['tiptop']},
+    {id:'compras_casa', nome:'Compras casa', kws:[]},
+  ]},
+  {id:'entradas', nome:'Entradas', cor:'var(--income)', subs:[
+    {id:'salario', nome:'Salário', kws:['yt consultoria','salario','pagamento recebido']},
+    {id:'vendas', nome:'Vendas', kws:[]},
+    {id:'mache', nome:'Maché', kws:['canever']},
+  ]},
+  {id:'outros', nome:'Outros', cor:'var(--c9)', subs:[
+    {id:'desconsiderar', nome:'Desconsiderar', exclude:true, kws:['cdb','cofrinhos','aplicacao','aplic aut','resgate','rend pago','pgto fat cartao','fat cartao','pagamento de fatura','itau black','emissao de cdb']},
+    {id:'sem_categoria', nome:'Sem categoria', kws:[]},
+  ]},
 ];
 
 /* ---------- Estado ---------- */
 let TX = [];          // transações
 let CATS = [];        // categorias
-let OVERRIDES = {};   // txId -> catId (categoria definida manualmente)
+let OVERRIDES = {};   // txId -> "catId/subId" (categoria/subcategoria manual)
+let IGNORED = new Set(); // txIds marcados manualmente como "desconsiderar"
 let periodOffset = 0; // 0 = mês atual, -1 = anterior...
 
 /* ---------- Helpers ---------- */
 const BRL = n => (n<0?'-':'') + 'R$ ' + Math.abs(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const BRLc = n => Math.abs(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 const norm = s => (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+const normMatch = s => norm(s).replace(/['’`´]/g,'');   // ignora apóstrofo: McDonald's -> donalds
 const monthKey = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 const MES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
 const MESLONG = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
 function hashTx(t){
-  // dedup determinístico: fonte + data + valor + descrição
   const s = `${t.source}|${t.date}|${t.amount.toFixed(2)}|${norm(t.desc).slice(0,40)}`;
   let h=0; for(let i=0;i<s.length;i++){h=(h*31 + s.charCodeAt(i))|0;}
   return 'tx_'+Math.abs(h).toString(36)+'_'+s.length;
 }
+// devolve sempre {cat, sub} (sub pode ser null = categoria sem subcategoria definida)
 function catOf(t){
-  if(OVERRIDES[t.id]) return CATS.find(c=>c.id===OVERRIDES[t.id]) || CATS.find(c=>c.id==='outros');
-  if(t.amount>0) return CATS.find(c=>c.id==='rendas');
-  if(t.bankCat){ const c=CATS.find(x=>x.id===t.bankCat); if(c) return c; }   // categoria que veio do banco
-  const d = norm(t.desc);
-  for(const c of CATS){ if(c.id==='rendas') continue; if(c.kws.some(k=>d.includes(norm(k)))) return c; }
-  return CATS.find(c=>c.id==='outros');
+  if(OVERRIDES[t.id]){
+    const [cid,sid]=OVERRIDES[t.id].split('/');
+    const c=CATS.find(x=>x.id===cid);
+    if(c){ const s=c.subs.find(x=>x.id===sid)||null; return {cat:c, sub:s}; }
+  }
+  const d=normMatch(t.desc);
+  for(const c of CATS){
+    if(t.amount<0 && c.id==='entradas') continue;                       // saída nunca é Entrada
+    if(t.amount>0 && c.id!=='entradas' && c.id!=='outros') continue;    // entrada só em Entradas (ou Desconsiderar)
+    for(const s of c.subs){
+      if(s.kws && s.kws.some(k=>k && d.includes(normMatch(k)))) return {cat:c, sub:s};
+    }
+  }
+  if(t.amount>0){ const e=CATS.find(c=>c.id==='entradas'); return {cat:e, sub:null}; }
+  const o=CATS.find(c=>c.id==='outros'); return {cat:o, sub:o.subs.find(s=>s.id==='sem_categoria')||null};
 }
+function isExcluded(t){ if(IGNORED.has(t.id)) return true; const {sub}=catOf(t); return !!(sub&&sub.exclude); }
 function resolveColor(v){
   if(!v||!v.startsWith('var(')) return v||'#999';
   const name=v.slice(4,-1).trim();
@@ -550,9 +607,7 @@ function txInMonth(off){
   return TX.filter(t=>t.date.slice(0,7)===k);
 }
 function expensesOnly(list){ return list.filter(t=>t.amount<0); }
-const EXCLUDED_CATS = new Set(['transfer']);
-function isTransfer(t){ return EXCLUDED_CATS.has(catOf(t).id); }
-function spendOnly(list){ return list.filter(t=>t.amount<0 && !EXCLUDED_CATS.has(catOf(t).id)); }
+function spendOnly(list){ return list.filter(t=>t.amount<0 && !isExcluded(t)); }
 
 /* =========================================================
    RENDER
@@ -571,8 +626,8 @@ function renderPainel(){
   const list = txInMonth(periodOffset);
   const exp = spendOnly(list);
   const totalExp = exp.reduce((s,t)=>s+t.amount,0); // negativo (sem transferências)
-  const totalIn = list.filter(t=>t.amount>0 && !isTransfer(t)).reduce((s,t)=>s+t.amount,0);
-  const totalTransf = list.filter(t=>t.amount<0 && isTransfer(t)).reduce((s,t)=>s+t.amount,0);
+  const totalIn = list.filter(t=>t.amount>0 && !isExcluded(t)).reduce((s,t)=>s+t.amount,0);
+  const totalTransf = list.filter(t=>t.amount<0 && isExcluded(t)).reduce((s,t)=>s+t.amount,0);
 
   // mês anterior p/ delta
   const prevExp = spendOnly(txInMonth(periodOffset-1)).reduce((s,t)=>s+t.amount,0);
@@ -583,9 +638,9 @@ function renderPainel(){
     deltaHtml = `<span class="delta ${up?'up':'down'}">${up?'▲':'▼'} ${Math.abs(pct).toFixed(0)}% vs mês anterior</span>`;
   }
 
-  // por categoria
+  // por categoria (nível 1)
   const byCat = {};
-  for(const t of exp){ const c=catOf(t); byCat[c.id]=byCat[c.id]||{cat:c,sum:0,n:0}; byCat[c.id].sum+=t.amount; byCat[c.id].n++; }
+  for(const t of exp){ const {cat}=catOf(t); byCat[cat.id]=byCat[cat.id]||{cat,sum:0,n:0}; byCat[cat.id].sum+=t.amount; byCat[cat.id].n++; }
   const cats = Object.values(byCat).sort((a,b)=>a.sum-b.sum); // mais negativo primeiro
 
   // por fonte
@@ -628,7 +683,7 @@ function renderPainel(){
       <div class="sub">
         ${exp.length} lançamentos · entradas ${BRL(totalIn)} ${deltaHtml}
       </div>
-      ${totalTransf!==0?`<div class="sub" style="color:#9FC0B8">↔ ${BRLc(totalTransf)} em transferências/investimentos — fora do gasto</div>`:''}
+      ${totalTransf!==0?`<div class="sub" style="color:#9FC0B8">↔ ${BRLc(totalTransf)} desconsiderado (transfer./invest.) — fora do gasto</div>`:''}
       <svg class="spark" viewBox="0 0 300 42" preserveAspectRatio="none">${sparkPath(spark)}</svg>
     </div>
 
@@ -665,12 +720,12 @@ function filterCat(id){ txFilter.cat=id; renderTx(); }
 function renderTx(){
   const el=document.getElementById('view-tx');
   if(TX.length===0){ el.innerHTML=emptyState(); return; }
-  const cats = [...new Set(TX.map(t=>catOf(t).id))];
+  const cats = [...new Set(TX.map(t=>catOf(t).cat.id))];
   const srcs = [...new Set(TX.map(t=>t.source))];
 
   let list = txInMonth(periodOffset).slice();
   if(txFilter.q){ const q=norm(txFilter.q); list=list.filter(t=>norm(t.desc).includes(q)); }
-  if(txFilter.cat){ list=list.filter(t=>catOf(t).id===txFilter.cat); }
+  if(txFilter.cat){ list=list.filter(t=>catOf(t).cat.id===txFilter.cat); }
   if(txFilter.src){ list=list.filter(t=>t.source===txFilter.src); }
   list.sort((a,b)=> b.date.localeCompare(a.date) || Math.abs(b.amount)-Math.abs(a.amount));
 
@@ -704,7 +759,7 @@ function renderTx(){
 function renderTxList(){
   let list = txInMonth(periodOffset).slice();
   if(txFilter.q){ const q=norm(txFilter.q); list=list.filter(t=>norm(t.desc).includes(q)); }
-  if(txFilter.cat){ list=list.filter(t=>catOf(t).id===txFilter.cat); }
+  if(txFilter.cat){ list=list.filter(t=>catOf(t).cat.id===txFilter.cat); }
   if(txFilter.src){ list=list.filter(t=>t.source===txFilter.src); }
   list.sort((a,b)=> b.date.localeCompare(a.date) || Math.abs(b.amount)-Math.abs(a.amount));
   const c=document.getElementById('txListCard'); if(c) c.innerHTML=txListHTML(list);
@@ -715,13 +770,15 @@ function txListHTML(list){
   for(const t of list){
     const day=t.date;
     if(day!==lastDay){ const dd=new Date(t.date+'T12:00'); html+=`<div class="daygroup">${dd.getDate()} ${MES[dd.getMonth()]}</div>`; lastDay=day; }
-    const c=catOf(t); const col=resolveColor(c.cor);
-    const ini=c.nome[0];
-    html+=`<div class="tx" onclick="openTx('${t.id}')">
+    const {cat,sub}=catOf(t); const col=resolveColor(cat.cor);
+    const ini=cat.nome[0];
+    const excl=isExcluded(t);
+    const label=`${cat.nome}${sub?' · '+sub.nome:''}`;
+    html+=`<div class="tx" onclick="openTx('${t.id}')" ${excl?'style="opacity:.5"':''}>
       <div class="ic" style="background:${col}">${ini}</div>
       <div class="mid">
         <div class="desc">${esc(t.desc)}</div>
-        <div class="meta">${c.nome} · ${t.source}${t.parcela?' · '+t.parcela:''}</div>
+        <div class="meta">${label} · ${esc(t.source)}${t.parcela?' · '+t.parcela:''}${excl?' · desconsiderado':''}</div>
       </div>
       <div class="amt num ${t.amount>0?'in':''}">${t.amount>0?'+':''}${BRLc(t.amount)}</div>
     </div>`;
@@ -733,21 +790,36 @@ function esc(s){ return (s||'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>
 /* ---------- Categorias ---------- */
 function renderCats(){
   const el=document.getElementById('view-cat');
-  const totalsAll={};
-  for(const t of expensesOnly(TX)){ const c=catOf(t); totalsAll[c.id]=(totalsAll[c.id]||0)+t.amount; }
-  // donut do mês
+  // totais por categoria e por subcategoria (todo o histórico de gastos)
+  const totCat={}, totSub={};
+  for(const t of expensesOnly(TX)){ const {cat,sub}=catOf(t); totCat[cat.id]=(totCat[cat.id]||0)+t.amount; const k=cat.id+'/'+(sub?sub.id:'—'); totSub[k]=(totSub[k]||0)+t.amount; }
+  // donut do mês (por categoria)
   const exp=spendOnly(txInMonth(periodOffset));
-  const byCat={}; for(const t of exp){ const c=catOf(t); byCat[c.id]=(byCat[c.id]||0)+Math.abs(t.amount); }
+  const byCat={}; for(const t of exp){ const {cat}=catOf(t); byCat[cat.id]=(byCat[cat.id]||0)+Math.abs(t.amount); }
   const donut = donutSVG(Object.entries(byCat).map(([id,v])=>({color:resolveColor(CATS.find(c=>c.id===id).cor), v})));
   const d=periodMonth(periodOffset);
 
-  let rows = CATS.map(c=>{
-    const tot = totalsAll[c.id]||0;
-    return `<div class="listitem">
-      <span class="catdot" style="width:14px;height:14px;background:${resolveColor(c.cor)}"></span>
-      <div class="mid"><div class="t">${c.nome}</div><div class="s">${c.kws.length} palavras-chave</div></div>
-      <div class="num small-muted">${tot?BRLc(tot):'—'}</div>
-      <button class="btn ghost sm" style="margin-left:10px" onclick="editCat('${c.id}')">Editar</button>
+  const tree = CATS.map(c=>{
+    const col=resolveColor(c.cor);
+    const subs = c.subs.map(s=>{
+      const tot=totSub[c.id+'/'+s.id]||0;
+      const kwTxt = s.kws&&s.kws.length ? s.kws.slice(0,6).join(', ')+(s.kws.length>6?'…':'') : '—';
+      return `<div class="listitem" style="padding:10px 0" onclick="editSub('${c.id}','${s.id}')">
+        <div class="mid">
+          <div class="t">${s.nome}${s.exclude?' <span class="tag">fora do gasto</span>':''}</div>
+          <div class="s">${esc(kwTxt)}</div>
+        </div>
+        <div class="num small-muted">${tot?BRLc(tot):''}</div>
+        <span style="color:var(--muted);margin-left:8px">›</span>
+      </div>`;
+    }).join('');
+    return `<div class="card" style="padding:14px 16px">
+      <div class="row-between">
+        <div style="display:flex;align-items:center;gap:9px"><span class="catdot" style="width:13px;height:13px;background:${col}"></span><b>${c.nome}</b></div>
+        <div class="num small-muted">${totCat[c.id]?BRLc(totCat[c.id]):''}</div>
+      </div>
+      <div style="margin-top:4px">${subs||'<div class="small-muted" style="padding:8px 0">Sem subcategorias</div>'}</div>
+      <button class="btn ghost sm" style="margin-top:8px" onclick="addSub('${c.id}')">+ subcategoria</button>
     </div>`;
   }).join('');
 
@@ -764,9 +836,9 @@ function renderCats(){
         </div>
       </div>
     </div>
-    <div class="sec-head"><h2>Suas categorias</h2></div>
-    <div class="card">${rows}</div>
-    <p class="small-muted" style="text-align:center;margin-top:14px">As regras (palavras-chave) categorizam automaticamente. Você pode mudar a categoria de qualquer lançamento tocando nele.</p>
+    <div class="sec-head"><h2>Categorias e subcategorias</h2></div>
+    ${tree}
+    <p class="small-muted" style="text-align:center;margin:14px 4px">Toque numa subcategoria pra editar nome e palavras-chave. As palavras-chave classificam os lançamentos automaticamente (ignoram acento e maiúscula).</p>
   `;
 }
 function donutSVG(segs){
@@ -938,50 +1010,98 @@ function finishImport(added,dup){
 
 function openTx(id){
   const t=TX.find(x=>x.id===id); if(!t) return;
-  const cur=catOf(t);
+  const {cat,sub}=catOf(t);
+  const ignored=IGNORED.has(t.id);
   const dd=new Date(t.date+'T12:00');
+  const picker=CATS.map(c=>{
+    const on = cat.id===c.id;
+    const subPills = c.subs.map(s=>`<button class="pill ${on&&sub&&sub.id===s.id?'on':''}" style="font-size:12px" onclick="setCat('${t.id}','${c.id}','${s.id}')">${s.nome}</button>`).join('');
+    return `<div style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span class="catdot" style="background:${resolveColor(c.cor)}"></span><b style="font-size:13px">${c.nome}</b></div>
+      <div class="catpick">${subPills}</div>
+    </div>`;
+  }).join('');
   openSheet(`
     <h3>${esc(t.desc)}</h3>
-    <p class="hint">${dd.getDate()} ${MESLONG[dd.getMonth()].toLowerCase()} ${dd.getFullYear()} · ${t.source} · <b style="color:${t.amount>0?'var(--income)':'var(--expense)'}">${t.amount>0?'+':''}${BRL(t.amount)}</b></p>
-    <label class="eyebrow" style="display:block;margin-bottom:10px">Categoria</label>
-    <div class="catpick">
-      ${CATS.map(c=>`<button class="pill ${cur.id===c.id?'on':''}" onclick="setCat('${t.id}','${c.id}')"><span class="catdot" style="background:${resolveColor(c.cor)}"></span>${c.nome}</button>`).join('')}
-    </div>
-    <button class="btn ghost block" style="margin-top:18px;color:var(--expense)" onclick="delTx('${t.id}')">Excluir lançamento</button>
+    <p class="hint">${dd.getDate()} ${MESLONG[dd.getMonth()].toLowerCase()} ${dd.getFullYear()} · ${esc(t.source)} · <b style="color:${t.amount>0?'var(--income)':'var(--expense)'}">${t.amount>0?'+':''}${BRL(t.amount)}</b></p>
+    <button class="pill ${ignored?'on':''}" style="margin-bottom:14px" onclick="toggleIgnore('${t.id}')">${ignored?'✓ ':''}Desconsiderar no relatório</button>
+    <label class="eyebrow" style="display:block;margin-bottom:10px">Categoria · subcategoria</label>
+    ${picker}
+    <button class="btn ghost block" style="margin-top:6px;color:var(--expense)" onclick="delTx('${t.id}')">Excluir lançamento</button>
   `);
 }
-async function setCat(txId, catId){
-  OVERRIDES[txId]=catId; await DB.setKV('overrides',OVERRIDES);
+async function setCat(txId, catId, subId){
+  OVERRIDES[txId]=catId+'/'+subId; await DB.setKV('overrides',OVERRIDES);
   closeSheet(); render(); toast('Categoria atualizada');
 }
+async function toggleIgnore(txId){
+  if(IGNORED.has(txId)) IGNORED.delete(txId); else IGNORED.add(txId);
+  await DB.setKV('ignored',[...IGNORED]);
+  render(); toast(IGNORED.has(txId)?'Marcado como desconsiderar':'Voltou pro relatório');
+  const t=TX.find(x=>x.id===txId); if(t) openTx(txId); // reabre atualizado
+}
 async function delTx(id){
-  await DB.del('tx',id); TX=TX.filter(t=>t.id!==id); delete OVERRIDES[id]; await DB.setKV('overrides',OVERRIDES);
+  await DB.del('tx',id); TX=TX.filter(t=>t.id!==id); delete OVERRIDES[id]; IGNORED.delete(id);
+  await DB.setKV('overrides',OVERRIDES); await DB.setKV('ignored',[...IGNORED]);
   closeSheet(); render(); toast('Lançamento excluído');
 }
 
-function editCat(id){
-  const c=CATS.find(x=>x.id===id);
+const slug = s => norm(s).replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')||('s'+Date.now());
+function editSub(catId, subId){
+  const c=CATS.find(x=>x.id===catId); const s=c.subs.find(x=>x.id===subId); if(!s) return;
   openSheet(`
-    <h3>Editar categoria</h3>
-    <div class="field"><label>Nome</label><input id="cN" value="${esc(c.nome)}"></div>
-    <div class="field"><label>Palavras-chave (separadas por vírgula)</label><input id="cK" value="${esc(c.kws.join(', '))}"></div>
+    <h3>Editar subcategoria</h3>
+    <p class="hint">Em ${esc(c.nome)}</p>
+    <div class="field"><label>Nome</label><input id="sN" value="${esc(s.nome)}"></div>
+    <div class="field"><label>Palavras-chave (separadas por vírgula)</label><input id="sK" value="${esc((s.kws||[]).join(', '))}"></div>
+    <button class="pill ${s.exclude?'on':''}" id="sX" style="margin-bottom:8px">${s.exclude?'✓ ':''}Fora do gasto (desconsiderar)</button>
     <p class="hint">Qualquer lançamento cuja descrição contenha uma dessas palavras cai aqui automaticamente.</p>
-    <button class="btn primary block" onclick="saveCat('${id}')">Salvar</button>
+    <button class="btn primary block" onclick="saveSub('${catId}','${subId}')">Salvar</button>
+    <button class="btn ghost block" style="margin-top:10px;color:var(--expense)" onclick="delSub('${catId}','${subId}')">Excluir subcategoria</button>
   `);
+  let exc=!!s.exclude; document.getElementById('sX').onclick=function(){ exc=!exc; this.classList.toggle('on',exc); this._v=exc; };
+  document.getElementById('sX')._v=exc;
 }
-async function saveCat(id){
-  const c=CATS.find(x=>x.id===id);
-  c.nome=document.getElementById('cN').value.trim()||c.nome;
-  c.kws=document.getElementById('cK').value.split(',').map(s=>s.trim()).filter(Boolean);
-  await DB.setKV('cats',CATS);
-  closeSheet(); render(); toast('Categoria salva');
+async function saveSub(catId, subId){
+  const c=CATS.find(x=>x.id===catId); const s=c.subs.find(x=>x.id===subId);
+  s.nome=document.getElementById('sN').value.trim()||s.nome;
+  s.kws=document.getElementById('sK').value.split(',').map(x=>x.trim()).filter(Boolean);
+  s.exclude=!!document.getElementById('sX')._v;
+  await DB.setKV('cats',CATS); closeSheet(); render(); toast('Subcategoria salva');
+}
+async function delSub(catId, subId){
+  const c=CATS.find(x=>x.id===catId);
+  if(!confirm('Excluir esta subcategoria? Os lançamentos dela voltam a ser classificados automaticamente.')) return;
+  c.subs=c.subs.filter(x=>x.id!==subId);
+  await DB.setKV('cats',CATS); closeSheet(); render(); toast('Subcategoria excluída');
+}
+function addSub(catId){
+  const c=CATS.find(x=>x.id===catId);
+  openSheet(`
+    <h3>Nova subcategoria</h3>
+    <p class="hint">Em ${esc(c.nome)}</p>
+    <div class="field"><label>Nome</label><input id="nsN" placeholder="ex: Mercado"></div>
+    <div class="field"><label>Palavras-chave (vírgula)</label><input id="nsK" placeholder="ex: carrefour, assai"></div>
+    <button class="btn primary block" onclick="createSub('${catId}')">Criar</button>
+  `);
+  setTimeout(()=>document.getElementById('nsN')?.focus(),200);
+}
+async function createSub(catId){
+  const c=CATS.find(x=>x.id===catId);
+  const nome=document.getElementById('nsN').value.trim(); if(!nome){ toast('Dê um nome'); return; }
+  let id=slug(nome); while(c.subs.some(s=>s.id===id)) id+='_';
+  const kws=document.getElementById('nsK').value.split(',').map(x=>x.trim()).filter(Boolean);
+  // insere antes de "sem_categoria"/"desconsiderar" se existirem
+  const idx=c.subs.findIndex(s=>s.id==='sem_categoria'||s.id==='desconsiderar');
+  c.subs.splice(idx<0?c.subs.length:idx,0,{id,nome,kws});
+  await DB.setKV('cats',CATS); closeSheet(); render(); toast('Subcategoria criada');
 }
 
 /* =========================================================
    BACKUP / RESTORE / WIPE / DEMO
    ========================================================= */
 async function doBackup(){
-  const data={v:1, exported:new Date().toISOString(), tx:TX, overrides:OVERRIDES, cats:CATS};
+  const data={v:2, exported:new Date().toISOString(), tx:TX, overrides:OVERRIDES, ignored:[...IGNORED], cats:CATS};
   const blob=new Blob([JSON.stringify(data)],{type:'application/json'});
   const url=URL.createObjectURL(blob); const a=document.createElement('a');
   a.href=url; a.download=`consolida-backup-${new Date().toISOString().slice(0,10)}.json`; a.click();
@@ -994,8 +1114,8 @@ function doRestore(file){
       const data=JSON.parse(r.result);
       if(!data.tx) throw 0;
       await DB.clear('tx'); await DB.bulkPut('tx',data.tx);
-      TX=data.tx; OVERRIDES=data.overrides||{}; CATS=data.cats||CATS;
-      await DB.setKV('overrides',OVERRIDES); await DB.setKV('cats',CATS);
+      TX=data.tx; OVERRIDES=data.overrides||{}; IGNORED=new Set(data.ignored||[]); CATS=data.cats||CATS;
+      await DB.setKV('overrides',OVERRIDES); await DB.setKV('ignored',[...IGNORED]); await DB.setKV('cats',CATS);
       render(); go('painel'); toast('Backup restaurado');
     }catch(e){ toast('Arquivo de backup inválido'); }
   };
@@ -1048,17 +1168,18 @@ document.getElementById('btnBackup').addEventListener('click',doBackup);
    ========================================================= */
 (async function init(){
   try{
-    CATS = await DB.getKV('cats', null) || DEFAULT_CATS.map(c=>({...c}));
-    if(!CATS.some(c=>c.id==='transfer')){   // migração p/ instalações antigas
-      const t=DEFAULT_CATS.find(c=>c.id==='transfer');
-      const i=CATS.findIndex(c=>c.id==='outros');
-      CATS.splice(i<0?CATS.length:i, 0, {...t}); await DB.setKV('cats',CATS);
+    CATS = await DB.getKV('cats', null);
+    // estrutura antiga (plana, com .kws e sem .subs) -> substitui pela nova de 2 níveis
+    if(!CATS || !CATS.length || !CATS[0].subs){
+      CATS = JSON.parse(JSON.stringify(DEFAULT_CATS));
+      await DB.setKV('cats',CATS);
+      await DB.setKV('overrides',{});   // ids antigos não valem mais
     }
     OVERRIDES = await DB.getKV('overrides', {}) || {};
+    IGNORED = new Set(await DB.getKV('ignored', []) || []);
     TX = await DB.all('tx');
   }catch(e){
-    // Ambiente sem IndexedDB (ex: preview sandbox) — roda em memória
-    CATS = DEFAULT_CATS.map(c=>({...c})); OVERRIDES={}; TX=[];
+    CATS = JSON.parse(JSON.stringify(DEFAULT_CATS)); OVERRIDES={}; IGNORED=new Set(); TX=[];
   }
   render();
   if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
