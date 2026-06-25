@@ -330,7 +330,7 @@ const DEFAULT_CATS = [
     {id:'mache', nome:'Maché', kws:['canever']},
   ]},
   {id:'outros', nome:'Outros', cor:'var(--c9)', subs:[
-    {id:'desconsiderar', nome:'Desconsiderar', exclude:true, kws:['cdb','cofrinhos','aplicacao','aplic aut','resgate','rend pago','pgto fat cartao','fat cartao','pagamento de fatura','itau black','emissao de cdb']},
+    {id:'desconsiderar', nome:'Desconsiderar', exclude:true, kws:['cdb','cofrinhos','aplicacao','aplic aut','resgate','rend pago','pgto fat cartao','fat cartao','pagamento de fatura','inclusao de pagamento','itau black','emissao de cdb']},
     {id:'sem_categoria', nome:'Sem categoria', kws:[]},
   ]},
 ];
@@ -988,9 +988,11 @@ function openCSVMapper(text, srcName, prevAdded, prevDup){
   const {header,rows}=parseCSVraw(text);
   const g=guessMap(header);
   const opt=(sel,allowNone)=>(allowNone?`<option value="-1" ${sel<0?'selected':''}>— nenhuma —</option>`:'')+header.map((h,i)=>`<option value="${i}" ${sel===i?'selected':''}>${esc(h)||('coluna '+(i+1))}</option>`).join('');
-  // auto-detecta sinal: se a coluna de valor tem algum negativo, provavelmente é extrato (gastos já negativos)
-  let hasNeg=false; if(g.amount>=0){ for(const r of rows){ if((r[g.amount]||'').includes('-')){hasNeg=true;break;} } }
-  const defInvert = !hasNeg; // sem negativos => fatura (positivos) => inverter
+  // auto-detecta sinal: fatura tem MAIORIA positiva (compras) -> inverter;
+  // extrato de coluna única tem maioria negativa (gastos já com sinal) -> não inverter.
+  let pos=0, neg=0;
+  if(g.amount>=0){ for(const r of rows){ const v=parseBRAmount(r[g.amount]||''); if(v>0)pos++; else if(v<0)neg++; } }
+  const defInvert = pos>=neg; // empate ou maioria positiva => fatura => inverter
 
   const valorField = g.split
     ? `<div class="field"><label>Entrada (R$)</label><select id="mEnt">${opt(g.entrada)}</select></div>
