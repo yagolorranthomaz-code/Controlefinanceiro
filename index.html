@@ -280,8 +280,8 @@ const DEFAULT_CATS = [
   {id:'alimentacao', nome:'Alimentação', cor:'var(--c1)', subs:[
     {id:'mercado', nome:'Mercado', kws:['mercado','supermerc','atacad','hortif','acougue','assai','carrefour','pao de acucar','extra','sams']},
     {id:'almoco_trab', nome:'Almoço do trabalho', kws:['piccolo','millo','rick doces']},
-    {id:'restaurantes', nome:'Restaurantes e Padarias', kws:['outback','donalds','habib','padaria','pizzaria','restaurante','picanha','cafe']},
     {id:'delivery', nome:'Delivery', kws:['keeta','ifood','ifd','kta','delivery']},
+    {id:'restaurantes', nome:'Restaurantes e Padarias', kws:['outback','donalds','habib','padaria','pizzaria','restaurante','picanha','cafe']},
   ]},
   {id:'transporte', nome:'Transporte', cor:'var(--c2)', subs:[
     {id:'uber', nome:'Uber', kws:['uber','cabify','taxi','99 ','99app','99*']},
@@ -415,11 +415,20 @@ function splitCSVLine(line, d){
   out.push(cur); return out.map(s=>s.trim());
 }
 function parseCSVraw(text){
-  const lines = text.split(/\r?\n/).filter(l=>l.trim().length);
+  text = text.replace(/^\uFEFF/, '');                       // remove BOM
+  let lines = text.split(/\r?\n/).filter(l=>l.trim().length);
   if(!lines.length) return {header:[],rows:[]};
-  const d = detectDelim(lines[0]);
-  const header = splitCSVLine(lines[0], d);
-  const rows = lines.slice(1).map(l=>splitCSVLine(l,d));
+  // pula preâmbulo: acha a 1ª linha que parece um cabeçalho (tem "data" + uma coluna de valor/descr.)
+  let hi = lines.findIndex(l=>{
+    const c = splitCSVLine(l, detectDelim(l)).map(norm);
+    const hasData = c.some(x=>/(^|\b)(data|date|dt)\b/.test(x)||x.includes('data'));
+    const hasVal  = c.some(x=>/(descri|valor|sa[ií]da|entrada|t[ií]tulo|hist|lan[cç]amento|estabelec)/.test(x));
+    return hasData && hasVal;
+  });
+  if(hi<0) hi=0;
+  const d = detectDelim(lines[hi]);
+  const header = splitCSVLine(lines[hi], d);
+  const rows = lines.slice(hi+1).map(l=>splitCSVLine(l,d));
   return {header,rows,delim:d};
 }
 function guessMap(header){
@@ -431,13 +440,18 @@ function guessMap(header){
   };
   // valor: primeiro tenta a coluna em R$/reais; só depois "valor" genérico, excluindo US$/cotação
   let amount = byKw(['valor (em r$)','valor em r$','valor r$','valor (r$)','reais','brl']);
-  if(amount<0) amount = byKw(['valor','amount','value','montante','total','quantia'], ['us$','usd','dolar','dólar','cotac']);
-  // descrição: evita "Nome no Cartão"; usa 'nome' só como último recurso
-  let desc = byKw(['descri','histor','estabelec','lancamento','title','memo']);
+  if(amount<0) amount = byKw(['valor','amount','value','montante','total','quantia'], ['us$','usd','dolar','dólar','cotac','saldo']);
+  // colunas separadas Entrada / Saída (extrato C6 conta): valor = entrada − saída
+  const entrada = byKw(['entrada','credito','crédito']);
+  const saida   = byKw(['saida','saída','debito','débito']);
+  const split   = (entrada>=0 && saida>=0 && entrada!==saida);
+  // descrição: prefere "Título" (texto categorizável do C6 conta); evita "Nome no Cartão"
+  let desc = byKw(['titulo','título']);
+  if(desc<0) desc = byKw(['descri','histor','estabelec','lancamento','title','memo']);
   if(desc<0) desc = byKw(['nome']);
   return {
-    date: byKw(['data de compra','data','date','dt','posted']),
-    desc, amount,
+    date: byKw(['data de compra','data lancamento','data lançamento','data','date','dt','posted']),
+    desc, amount, entrada, saida, split,
     cat:  byKw(['categoria','category']),       // categoria do próprio banco (C6 / Itaú)
     card: byKw(['final do cartao','final cartao','final','cartao final']),
     parcela: byKw(['parcela','installment']),
@@ -475,10 +489,17 @@ function parseCSVrows(rows, map, sourceName, invert, useBankCat){
   const out=[];
   for(const r of rows){
     const date = parseBRDate(r[map.date]||'');
-    let amount = parseBRAmount(r[map.amount]||'');
+    let amount;
+    if(map.split){                                        // colunas Entrada/Saída (C6 conta)
+      const ent = parseBRAmount(r[map.entrada]||'') || 0;
+      const sai = parseBRAmount(r[map.saida]||'')   || 0;
+      amount = ent - sai;                                 // entrada +, saída −
+    } else {
+      amount = parseBRAmount(r[map.amount]||'');
+      if(amount!==null && invert) amount = -amount;
+    }
     const desc = (r[map.desc]||'Sem descrição').replace(/\s+/g,' ').trim();
-    if(!date || amount===null) continue;
-    if(invert) amount = -amount;
+    if(!date || amount===null || amount===undefined) continue;
     const cardVal = (map.card>=0 && r[map.card]) ? r[map.card].trim() : '';
     const t = {source:(sourceName||'CSV')+(cardVal?' ·'+cardVal:''), date, amount, desc};
     if(cardVal) t.card = cardVal;
@@ -970,19 +991,26 @@ function openCSVMapper(text, srcName, prevAdded, prevDup){
   // auto-detecta sinal: se a coluna de valor tem algum negativo, provavelmente é extrato (gastos já negativos)
   let hasNeg=false; if(g.amount>=0){ for(const r of rows){ if((r[g.amount]||'').includes('-')){hasNeg=true;break;} } }
   const defInvert = !hasNeg; // sem negativos => fatura (positivos) => inverter
+
+  const valorField = g.split
+    ? `<div class="field"><label>Entrada (R$)</label><select id="mEnt">${opt(g.entrada)}</select></div>
+       <div class="field"><label>Saída (R$)</label><select id="mSai">${opt(g.saida)}</select></div>
+       <p class="hint">Formato com colunas separadas: o valor é Entrada − Saída (entrada conta como +, saída como −).</p>`
+    : `<div class="field"><label>Valor (em R$)</label><select id="mAmt">${opt(g.amount)}</select></div>
+       <div class="field">
+         <label>Os valores de gasto vêm…</label>
+         <select id="mInv">
+           <option value="0" ${!defInvert?'selected':''}>negativos (-50,00) — padrão extrato</option>
+           <option value="1" ${defInvert?'selected':''}>positivos (50,00) — comum em fatura de cartão</option>
+         </select>
+       </div>`;
+
   openSheet(`
     <h3>Conferir colunas do CSV</h3>
     <p class="hint">Cada banco exporta diferente. Já tentei adivinhar — confira o essencial e importe.</p>
     <div class="field"><label>Data</label><select id="mDate">${opt(g.date)}</select></div>
     <div class="field"><label>Descrição</label><select id="mDesc">${opt(g.desc)}</select></div>
-    <div class="field"><label>Valor (em R$)</label><select id="mAmt">${opt(g.amount)}</select></div>
-    <div class="field">
-      <label>Os valores de gasto vêm…</label>
-      <select id="mInv">
-        <option value="0" ${!defInvert?'selected':''}>negativos (-50,00) — padrão extrato</option>
-        <option value="1" ${defInvert?'selected':''}>positivos (50,00) — comum em fatura de cartão</option>
-      </select>
-    </div>
+    ${valorField}
     <div class="field"><label>Categoria do banco (opcional)</label><select id="mCat">${opt(g.cat,true)}</select></div>
     <div class="field"><label>Final do cartão (opcional)</label><select id="mCard">${opt(g.card,true)}</select></div>
     <label class="pill ${g.cat>=0?'on':''}" id="mUseCat" style="cursor:pointer">✓ usar categoria do banco quando houver</label>
@@ -992,9 +1020,12 @@ function openCSVMapper(text, srcName, prevAdded, prevDup){
   let useCat = g.cat>=0;
   document.getElementById('mUseCat').onclick=function(){ useCat=!useCat; this.classList.toggle('on',useCat); };
   document.getElementById('csvGo').onclick=async()=>{
-    const map={ date:+document.getElementById('mDate').value, desc:+document.getElementById('mDesc').value, amount:+document.getElementById('mAmt').value,
-                cat:+document.getElementById('mCat').value, card:+document.getElementById('mCard').value, parcela:g.parcela };
-    const invert=document.getElementById('mInv').value==='1';
+    const gv=id=>{const e=document.getElementById(id);return e?+e.value:-1;};
+    const map={ date:gv('mDate'), desc:gv('mDesc'),
+                amount:g.split?-1:gv('mAmt'),
+                entrada:g.split?gv('mEnt'):-1, saida:g.split?gv('mSai'):-1, split:g.split,
+                cat:gv('mCat'), card:gv('mCard'), parcela:g.parcela };
+    const invert=g.split?false:(document.getElementById('mInv').value==='1');
     const src=document.getElementById('mSrc').value.trim()||'CSV';
     const tx=parseCSVrows(rows, map, src, invert, useCat);
     const r=await ingest(tx);
